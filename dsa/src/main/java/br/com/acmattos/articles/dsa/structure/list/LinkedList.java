@@ -300,10 +300,20 @@ public class LinkedList implements List {
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Query Operations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @Override
     public String toString() {
-        return "LinkedList{" +
-            "head=" + head +
-            ", tail=" + tail +
-            ", size=" + size +
-            '}';
+        return "LinkedList=" +
+            stringify();
+    }
+
+    private String stringify() {
+        Node temp = head;
+        StringBuilder sb = new StringBuilder("[");
+        while (temp != null){
+            sb.append(temp.value).append(", ");
+            temp = temp.next;
+        }
+        if(size > 0) {
+            return sb.substring(0, sb.lastIndexOf(", ")) + "]";
+        }
+        return sb + "]";
     }
 }

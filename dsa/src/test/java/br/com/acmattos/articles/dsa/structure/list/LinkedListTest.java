@@ -473,9 +473,29 @@ class LinkedListTest {
         assertFalse(list.isEmpty());
     }
 
-    private LinkedList createPopulatedLinkedList(int size) {
+    @Test
+    void givenAnEmptyListWhenStringifyTheListThenNoElementsIsShown() {
+        // Given
+        LinkedList list = createPopulatedLinkedList(0);
+        // When
+        String toString = list.toString();
+        // Then
+        assertEquals("LinkedList=[]", toString);
+    }
+
+    @Test
+    void givenANomEmptyListWhenStringifyTheListThenElementsAreShown() {
+        // Given
+        LinkedList list = createPopulatedLinkedList(4);
+        // When
+        String toString = list.toString();
+        // Then
+        assertEquals("LinkedList=[0, 1, 2, 3]", toString);
+    }
+
+    private LinkedList createPopulatedLinkedList(int capacity) {
         LinkedList list = new LinkedList();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < capacity; i++) {
             list.add(i);
         }
         return list;

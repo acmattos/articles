@@ -492,7 +492,7 @@ class ArrayListTest {
     }
 
     @Test
-    void givenAnEmptyListWhenStringfyingTheListThenNoElementsIsShown() {
+    void givenAnEmptyListWhenStringifyTheListThenNoElementsIsShown() {
         // Given
         ArrayList list = createPopulatedArrayList(0);
         // When
@@ -502,7 +502,7 @@ class ArrayListTest {
     }
 
     @Test
-    void givenANomEmptyListWhenStringfyingTheListThenElementsAreShown() {
+    void givenANomEmptyListWhenStringifyTheListThenElementsAreShown() {
         // Given
         ArrayList list = createPopulatedArrayList(4);
         // When
