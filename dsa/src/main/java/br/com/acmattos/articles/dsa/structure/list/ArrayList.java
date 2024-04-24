@@ -4,7 +4,6 @@ import java.util.NoSuchElementException;
 
 /**
  * Resizable-array implementation of the {@code List} interface.
- *
  */
 public class ArrayList implements List {
     private static final int DEFAULT_CAPACITY = 10;
@@ -34,6 +33,7 @@ public class ArrayList implements List {
         this.array = new int[capacity];
     }
 
+    // vvvvvvvvvvvvvvvvvvvvv Positional Access Operations vvvvvvvvvvvvvvvvvvvvvv
     /**
      * Returns the value at the specified position in this list.
      * Time Complexity: O(1).
@@ -58,6 +58,7 @@ public class ArrayList implements List {
      * @return the first value.
      * @throws IndexOutOfBoundsException if this list is empty.
      */
+    @Override
     public int getFirst() {
         return get(0);
     }
@@ -69,13 +70,9 @@ public class ArrayList implements List {
      * @return the last value.
      * @throws IndexOutOfBoundsException if this list is empty.
      */
+    @Override
     public int getLast() {
         return get(size - 1);
-    }
-
-    private void throwIndexOutOfBoundsException(int index) {
-        throw new IndexOutOfBoundsException(
-            "Index out of bounds: " + index + ", size: " + size);
     }
 
     /**
@@ -89,6 +86,7 @@ public class ArrayList implements List {
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
+    @Override
     public int set(int index, int value) {
         if(index < 0 || index >= size) {
             throwIndexOutOfBoundsException(index);
@@ -96,6 +94,11 @@ public class ArrayList implements List {
         int temp = array[index];
         array[index] = value;
         return temp;
+    }
+
+    private void throwIndexOutOfBoundsException(int index) {
+        throw new IndexOutOfBoundsException(
+            "Index out of bounds: " + index + ", size: " + size);
     }
     // ^^^^^^^^^^^^^^^^^^^^^ Positional Access Operations ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -107,10 +110,11 @@ public class ArrayList implements List {
      * Time Complexity: O(n).
      *
      * @param index index at which the specified value is to be inserted.
-     * @param value value to be inserted.
+     * @param value the value to be added.
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index > size()})
      */
+    @Override
     public void add(int index, int value) {
         if(index < 0 || index > size) {
             throwIndexOutOfBoundsException(index);
@@ -127,16 +131,21 @@ public class ArrayList implements List {
 
     /**
      * Adds a value as the first value of this list.
+     * After this operation completes normally, the given value will be a member
+     * of this list, and it will be the first value in encounter order.
      * Time Complexity: O(n).
      *
-     * @param value the value to be added
+     * @param value the value to be added.
      */
+    @Override
     public void addFirst(int value) {
         add(0, value);
     }
 
     /**
      * Adds a value as the last value of this collection.
+     * After this operation completes normally, the given value will be a member
+     * of this list, and it will be the last value in encounter order.
      * Time Complexity: O(1).
      *
      * @param value the value to be added.
@@ -179,6 +188,7 @@ public class ArrayList implements List {
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
+    @Override
     public int remove(int index) {
         if(index < 0 || index >= size) {
             throwIndexOutOfBoundsException(index);
@@ -285,7 +295,6 @@ public class ArrayList implements List {
         return false;
     }
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Query Operations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("ArrayList=[");

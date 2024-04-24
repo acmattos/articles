@@ -2,6 +2,9 @@ package br.com.acmattos.articles.dsa.structure.list;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Linked List implementation of the {@code List} interface.
+ */
 public class LinkedList implements List {
     private Node head;
     private Node tail;
@@ -15,6 +18,9 @@ public class LinkedList implements List {
         }
     }
 
+    /**
+     * Construct a linked list.
+     */
     public LinkedList() {
     }
 
@@ -233,6 +239,7 @@ public class LinkedList implements List {
         }
         return remove(size - 1);
     }
+
     /**
      * Removes all the values from this list by resetting the size of the list
      * to zero.
@@ -293,7 +300,6 @@ public class LinkedList implements List {
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Query Operations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @Override
     public String toString() {
-
         return "LinkedList{" +
             "head=" + head +
             ", tail=" + tail +
