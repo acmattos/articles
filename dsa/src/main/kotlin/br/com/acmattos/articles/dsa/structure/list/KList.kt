@@ -1,6 +1,6 @@
-package br.com.acmattos.articles.dsa.structure.list;
+package br.com.acmattos.articles.dsa.structure.list
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException
 
 /**
  * In the context of data structures, a list typically refers to a linear data
@@ -40,7 +40,7 @@ import java.util.NoSuchElementException;
  * vary based on the programming language and the type of list implementation
  * used (e.g., linked list, array list, doubly linked list, etc.).
  */
-public interface List {
+interface KList {
     // vvvvvvvvvvvvvvvvvvvvv Positional Access Operations vvvvvvvvvvvvvvvvvvvvvv
     /**
      * Returns the value at the specified position in this list.
@@ -50,7 +50,7 @@ public interface List {
      * @throws IndexOutOfBoundsException if the index is out of range:
      *         ({@code index < 0 || index >= size()})
      */
-    int get(int index);
+    fun get(index: Int): Int
 
     /**
      * Gets the first value on this list.
@@ -58,7 +58,7 @@ public interface List {
      * @return the first value.
      * @throws IndexOutOfBoundsException if this list is empty.
      */
-    int getFirst();
+    fun getFirst(): Int
 
     /**
      * Gets the last value on this list.
@@ -66,7 +66,7 @@ public interface List {
      * @return the last value.
      * @throws IndexOutOfBoundsException if this list is empty.
      */
-    int getLast();
+    fun getLast(): Int
 
     /**
      * Replaces the current value at the specified position in this list with
@@ -78,7 +78,7 @@ public interface List {
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
-    int set(int index, int value);
+    fun set(index: Int, value: Int): Int
     // ^^^^^^^^^^^^^^^^^^^^^ Positional Access Operations ^^^^^^^^^^^^^^^^^^^^^^
 
     // vvvvvvvvvvvvvvvvvvvvvvvv Modification Operations vvvvvvvvvvvvvvvvvvvvvvvv
@@ -92,7 +92,7 @@ public interface List {
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index > size()})
      */
-    void add(int index, int value);
+    fun add(index: Int, value: Int)
 
     /**
      * Adds a value as the first value of this list.
@@ -101,7 +101,7 @@ public interface List {
      *
      * @param value the value to be added.
      */
-    void addFirst(int value);
+    fun addFirst(value: Int)
 
     /**
      * Adds a value as the last value of this list.
@@ -110,7 +110,7 @@ public interface List {
      *
      * @param value the value to be added.
      */
-    void add(int value);
+    fun add(value: Int)
 
     /**
      * Removes the value at the specified position in this list.
@@ -122,7 +122,7 @@ public interface List {
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
-    int remove(int index);
+    fun remove(index: Int): Int
 
     /**
      * Removes and returns the first value of this list.
@@ -130,7 +130,7 @@ public interface List {
      * @return the removed value
      * @throws NoSuchElementException if the list is empty.
      */
-    int removeFirst();
+    fun removeFirst(): Int
 
     /**
      * Removes and returns the last value of this list.
@@ -138,13 +138,13 @@ public interface List {
      * @return the removed value.
      * @throws NoSuchElementException if this list is empty.
      */
-    int remove();
+    fun remove(): Int
 
     /**
      * Removes all of the values from this list.
      * The list will be empty after this call returns.
      */
-    void clear();
+    fun clear()
     // ^^^^^^^^^^^^^^^^^^^^^^^^ Modification Operations ^^^^^^^^^^^^^^^^^^^^^^^^
 
     // vvvvvvvvvvvvvvvvvvvvvvvvvvv Query Operations vvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -153,14 +153,14 @@ public interface List {
      *
      * @return the number of values in this list
      */
-    int size();
+    fun size(): Int
 
     /**
      * Returns {@code true} if this list contains no values.
      *
      * @return {@code true} if this list contains no values
      */
-    boolean isEmpty();
+    fun isEmpty(): Boolean
 
     /**
      * Returns {@code true} if this list contains the specified value.
@@ -170,6 +170,6 @@ public interface List {
      * @param value the value whose presence in this list is to be tested.
      * @return {@code true} if this list contains the specified value.
      */
-    boolean contains(int value);
+    fun contains(value: Int): Boolean
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Query Operations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }
