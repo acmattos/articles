@@ -81,7 +81,7 @@ class ArrayListTest {
         ArrayList list = createPopulatedArrayList(1);
         int index = 0;
         // When
-        int value = list.get(0);
+        int value = list.get(index);
         // Then
         assertEquals(0, value);
     }
@@ -92,8 +92,7 @@ class ArrayListTest {
         ArrayList list = createPopulatedArrayList(0);
         // When
         Throwable throwable =
-            assertThrows(IndexOutOfBoundsException.class,
-                () -> list.getFirst());
+            assertThrows(IndexOutOfBoundsException.class, list::getFirst);
         // Then
         assertNotNull(throwable);
         assertEquals("Index out of bounds: 0, size: 0",
@@ -116,8 +115,7 @@ class ArrayListTest {
         ArrayList list = createPopulatedArrayList(0);
         // When
         Throwable throwable =
-            assertThrows(IndexOutOfBoundsException.class,
-                () -> list.getLast());
+            assertThrows(IndexOutOfBoundsException.class, list::getLast);
         // Then
         assertNotNull(throwable);
         assertEquals("Index out of bounds: -1, size: 0",
@@ -191,7 +189,7 @@ class ArrayListTest {
     }
 
     @Test
-    void givenAInvalidIndexWhenAddingAValueWithTheIndexThenAnExceptionIsThrown() {
+    void givenAnInvalidIndexWhenAddingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
         ArrayList list = createPopulatedArrayList(1);
         int index = 2;
@@ -206,7 +204,19 @@ class ArrayListTest {
     }
 
     @Test
-    void givenAIndexEqualEndOfTheListWhenAddingAValueWithTheIndexThenAValueIsReturned() {
+    void givenAnEmptyListWhenAddingAValueWithTheIndexThenAValueIsAdded() {
+        // Given
+        ArrayList list = createPopulatedArrayList(0);
+        int index = 0;
+        // When
+        list.add(index, 10);
+        // Then
+        assertEquals(10, list.get(index));
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void givenAnIndexEqualEndOfTheListWhenAddingAValueWithTheIndexThenAValueIsAdded() {
         // Given
         ArrayList list = createPopulatedArrayList(1);
         int index = 1;
@@ -216,6 +226,19 @@ class ArrayListTest {
         assertEquals(0, list.get(0));
         assertEquals(10, list.get(index));
         assertEquals(2, list.size());
+    }
+
+    @Test
+    void givenAnEmptyArrayWhenAddingAValueWithTheIndexThenAValueIsAdded() {
+        // Given
+        ArrayList list = new ArrayList(2);
+        int index = 0;
+        // When
+        list.add(index, 10);
+        // Then
+        assertEquals(10, list.get(0));
+        assertEquals(1, list.size());
+        assertEquals(2, list.getCapacity());
     }
 
     @Test
@@ -259,6 +282,21 @@ class ArrayListTest {
         assertEquals(0, list.get(0));
         assertEquals(10, list.get(1));
         assertEquals(2, list.size());
+    }
+
+    @Test
+    void givenAValidIndexWhenAddingAValueWithTheIndexThenAValueIsInsertedAtIndexPosition() {
+        // Given
+        ArrayList list = createPopulatedArrayList(3);
+        int index = 2;
+        // When
+        list.add(index, 10);
+        // Then
+        assertEquals(0, list.get(0));
+        assertEquals(1, list.get(1));
+        assertEquals(10, list.get(index));
+        assertEquals(2, list.get(3));
+        assertEquals(4, list.size());
     }
 
     @Test
@@ -307,21 +345,6 @@ class ArrayListTest {
         assertEquals(0, list.get(0));
         assertEquals(10, list.get(1));
         assertEquals(2, list.size());
-    }
-
-    @Test
-    void givenAValidIndexWhenAddingAValueWithTheIndexThenAValueIsInsertedAtIndexPosition() {
-        // Given
-        ArrayList list = createPopulatedArrayList(3);
-        int index = 2;
-        // When
-        list.add(index, 10);
-        // Then
-        assertEquals(0, list.get(0));
-        assertEquals(1, list.get(1));
-        assertEquals(10, list.get(index));
-        assertEquals(2, list.get(3));
-        assertEquals(4, list.size());
     }
 
     @Test
@@ -383,13 +406,28 @@ class ArrayListTest {
     }
 
     @Test
+    void givenAValidLastIndexWhenRemovingAValueWithTheIndexThenTheSizeIsTwo() {
+        // Given
+        ArrayList list = createPopulatedArrayList(4);
+        int index = 2;
+        // When
+        int value = list.remove(index);
+        // Then
+        assertEquals(2, value);
+        assertEquals(0, list.get(0));
+        assertEquals(1, list.get(1));
+        assertEquals(3, list.get(2));
+        assertEquals(3, list.size());
+        assertFalse(list.isEmpty());
+    }
+
+    @Test
     void givenAnEmptyListWhenRemovingFirstValueThenAnExceptionIsThrown() {
         // Given
         ArrayList list = createPopulatedArrayList(0);
         // When
         Throwable throwable =
-            assertThrows(NoSuchElementException.class,
-                () -> list.removeFirst());
+            assertThrows(NoSuchElementException.class, list::removeFirst);
         // Then
         assertNotNull(throwable);
         assertEquals("The list is empty!",
@@ -409,13 +447,25 @@ class ArrayListTest {
     }
 
     @Test
+    void givenANonEmptyListWhenRemovingFirstValueThenTheSizeIsOne() {
+        // Given
+        ArrayList list = createPopulatedArrayList(2);
+        // When
+        int value = list.removeFirst();
+        // Then
+        assertEquals(0, value);
+        assertEquals(1, list.get(0));
+        assertEquals(1, list.size());
+        assertFalse(list.isEmpty());
+    }
+
+    @Test
     void givenAnEmptyListWhenRemovingLastValueThenAnExceptionIsThrown() {
         // Given
         ArrayList list = createPopulatedArrayList(0);
         // When
         Throwable throwable =
-            assertThrows(NoSuchElementException.class,
-                () -> list.remove());
+            assertThrows(NoSuchElementException.class, list::remove);
         // Then
         assertNotNull(throwable);
         assertEquals("The list is empty!",
@@ -432,6 +482,19 @@ class ArrayListTest {
         assertEquals(0, value);
         assertEquals(0, list.size());
         assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void givenANonEmptyListWhenRemovingLastValueThenTheSizeIsOne() {
+        // Given
+        ArrayList list = createPopulatedArrayList(2);
+        // When
+        int value = list.remove();
+        // Then
+        assertEquals(1, value);
+        assertEquals(0, list.get(0));
+        assertEquals(1, list.size());
+        assertFalse(list.isEmpty());
     }
 
     @Test

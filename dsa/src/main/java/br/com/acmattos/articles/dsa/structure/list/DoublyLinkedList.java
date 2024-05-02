@@ -3,15 +3,16 @@ package br.com.acmattos.articles.dsa.structure.list;
 import java.util.NoSuchElementException;
 
 /**
- * Linked List implementation of the {@code List} interface.
+ * Doubly Linked List implementation of the {@code List} interface.
  */
-public class LinkedList implements List {
+public class DoublyLinkedList implements List {
     private Node head;
     private Node tail;
     private int size;
 
     private static class Node {
         int value;
+        Node prev;
         Node next;
         Node(int value) {
             this.value = value;
@@ -21,7 +22,7 @@ public class LinkedList implements List {
     /**
      * Construct a linked list.
      */
-    public LinkedList() {
+    public DoublyLinkedList() {
     }
 
     // vvvvvvvvvvvvvvvvvvvvv Positional Access Operations vvvvvvvvvvvvvvvvvvvvvv
@@ -95,15 +96,24 @@ public class LinkedList implements List {
     }
 
     /**
-     * Time Complexity: O(n)
+     * Time Complexity: O(n/2) -> O(n)
      *
      * @param index index of the node.
      * @return The node found or null.
      */
-    private Node getNode(int index) {
-        Node temp = head;
-        for (int i = 1; i <= index; i++) {
-            temp = temp.next;
+    Node getNode(int index) {
+        int middle = size / 2;
+        Node temp;
+        if(index < middle) {
+            temp = head;
+            for (int i = 1; i <= index; i++) {
+                temp = temp.next;
+            }
+        } else {
+            temp = tail;
+            for (int i = size - 2; i >= index; i--) {
+                temp = temp.prev;
+            }
         }
         return temp;
     }
@@ -139,6 +149,8 @@ public class LinkedList implements List {
         } else {
             Node prev = getNode(index - 1);
             added.next = prev.next;
+            prev.next.prev = added;
+            added.prev = prev;
             prev.next = added;
             size++;
         }
@@ -159,6 +171,7 @@ public class LinkedList implements List {
             tail = added;
         } else {
             added.next = head;
+            head.prev = added;
         }
         head = added;
         size++;
@@ -178,6 +191,7 @@ public class LinkedList implements List {
         if(size == 0) {
             head = added;
         } else {
+            added.prev = tail;
             tail.next = added;
         }
         tail = added;
@@ -206,9 +220,11 @@ public class LinkedList implements List {
         if(index == size - 1) {
             return remove();
         }
-        Node prev = getNode(index - 1);
-        Node removed = prev.next;
-        prev.next = removed.next;
+        Node removed = getNode(index);
+        removed.prev.next = removed.next;
+        removed.next.prev = removed.prev;
+        removed.prev = null;
+        removed.next = null;
         size--;
         return removed.value;
     }
@@ -232,6 +248,7 @@ public class LinkedList implements List {
         } else {
             head = removed.next;
             removed.next = null;
+            head.prev = null;
         }
         size--;
         return removed.value;
@@ -239,7 +256,7 @@ public class LinkedList implements List {
 
     /**
      * Removes and returns the last value of this list (optional operation).
-     * Time Complexity: O(n) .
+     * Time Complexity: O(1).
      *
      * @return the removed value.
      * @throws NoSuchElementException if this list is empty
@@ -254,7 +271,8 @@ public class LinkedList implements List {
             head = null;
             tail = null;
         } else {
-            tail = getNode(size - 2);
+            tail = removed.prev;
+            removed.prev = null;
             tail.next = null;
         }
         size--;
@@ -267,6 +285,7 @@ public class LinkedList implements List {
      * The list will be considered empty after this call returns.
      * Time Complexity: O(1).
      */
+    @Override
     public void clear() {
         head = null;
         tail = null;
@@ -321,7 +340,7 @@ public class LinkedList implements List {
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Query Operations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     @Override
     public String toString() {
-        return "LinkedList=" +
+        return "DoublyLinkedList=" +
             stringify();
     }
 

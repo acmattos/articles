@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LinkedListTest {
+class DoublyLinkedListTest {
 
     @Test
     void givenANegativeIndexWhenGettingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = -1;
         // When
         Throwable throwable =
@@ -30,7 +30,7 @@ class LinkedListTest {
     @Test
     void givenAInvalidIndexWhenGettingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 1;
         // When
         Throwable throwable =
@@ -45,7 +45,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenGettingAValueWithTheIndexThenAValueIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 0;
         // When
         int value = list.get(index);
@@ -56,7 +56,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenGettingFirstValueThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         Throwable throwable =
             assertThrows(IndexOutOfBoundsException.class, list::getFirst);
@@ -69,7 +69,7 @@ class LinkedListTest {
     @Test
     void givenANomEmptyListWhenGettingFirstValueThenAValueIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         int value = list.getFirst();
         // Then
@@ -79,7 +79,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenGettingLastValueThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         Throwable throwable =
             assertThrows(IndexOutOfBoundsException.class, list::getLast);
@@ -92,7 +92,7 @@ class LinkedListTest {
     @Test
     void givenANomEmptyListWhenGettingLastValueThenAValueIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         int value = list.getLast();
         // Then
@@ -102,7 +102,7 @@ class LinkedListTest {
     @Test
     void givenANegativeIndexWhenSettingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = -1;
         // When
         Throwable throwable =
@@ -117,7 +117,7 @@ class LinkedListTest {
     @Test
     void givenAInvalidIndexWhenSettingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 1;
         // When
         Throwable throwable =
@@ -132,7 +132,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenSettingAValueWithTheIndexThenAValueIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 0;
         // When
         list.set(index, 10);
@@ -143,7 +143,7 @@ class LinkedListTest {
     @Test
     void givenANegativeIndexWhenAddingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = -1;
         // When
         Throwable throwable =
@@ -158,7 +158,7 @@ class LinkedListTest {
     @Test
     void givenAnInvalidIndexWhenAddingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 2;
         // When
         Throwable throwable =
@@ -173,7 +173,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenAddingAValueWithTheIndexThenAValueIsAdded() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         int index = 0;
         // When
         list.add(index, 10);
@@ -185,7 +185,7 @@ class LinkedListTest {
     @Test
     void givenAnIndexEqualEndOfTheListWhenAddingAValueWithTheIndexThenAValueIsAdded() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 1;
         // When
         list.add(index, 10);
@@ -198,7 +198,7 @@ class LinkedListTest {
     @Test
     void givenANegativeIndexWhenAddingAValueAtIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = -1;
         // When
         Throwable throwable =
@@ -213,7 +213,7 @@ class LinkedListTest {
     @Test
     void givenAnInvalidIndexWhenAddingAValueAtIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 2;
         // When
         Throwable throwable =
@@ -228,7 +228,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenAddingAValueAtIndexThenAAValueIsAdded() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 1;
         // When
         list.add(index,10);
@@ -241,7 +241,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenAddingAValueWithTheIndexThenAValueIsInsertedAtIndexPosition() {
         // Given
-        LinkedList list = createPopulatedLinkedList(3);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(3);
         int index = 2;
         // When
         list.add(index, 10);
@@ -256,7 +256,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenAddingAValueAsFirstThenListSizeIsOne() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         int index = 0;
         // When
         list.addFirst(10);
@@ -268,7 +268,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenAddingAValueAsFirstThenListSizeIsTwo() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         list.addFirst(10);
         // Then
@@ -280,7 +280,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenAddingAValueAsLastThenListSizeIsOne() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         int index = 0;
         // When
         list.add(10);
@@ -292,7 +292,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenAddingAValueAsLastThenListSizeIsTwo() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         list.add(10);
         // Then
@@ -304,7 +304,7 @@ class LinkedListTest {
     @Test
     void givenANegativeIndexWhenRemovingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = -1;
         // When
         Throwable throwable =
@@ -319,7 +319,7 @@ class LinkedListTest {
     @Test
     void givenAInvalidIndexWhenRemovingAValueWithTheIndexThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 1;
         // When
         Throwable throwable =
@@ -334,7 +334,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenRemovingTheFirstValueWithTheIndexThenTheSizeIsZero() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         int index = 0;
         // When
         int value = list.remove(index);
@@ -347,7 +347,7 @@ class LinkedListTest {
     @Test
     void givenAValidIndexWhenRemovingAValueWithTheIndexThenTheSizeIsTwo() {
         // Given
-        LinkedList list = createPopulatedLinkedList(3);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(3);
         int index = 1;
         // When
         int value = list.remove(index);
@@ -362,7 +362,7 @@ class LinkedListTest {
     @Test
     void givenAValidLastIndexWhenRemovingAValueWithTheIndexThenTheSizeIsTwo() {
         // Given
-        LinkedList list = createPopulatedLinkedList(4);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(4);
         int index = 2;
         // When
         int value = list.remove(index);
@@ -378,7 +378,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenRemovingFirstValueThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         Throwable throwable =
             assertThrows(NoSuchElementException.class, list::removeFirst);
@@ -391,7 +391,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenRemovingFirstValueThenTheSizeIsZero() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         int value = list.removeFirst();
         // Then
@@ -403,7 +403,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenRemovingFirstValueThenTheSizeIsOne() {
         // Given
-        LinkedList list = createPopulatedLinkedList(2);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(2);
         // When
         int value = list.removeFirst();
         // Then
@@ -416,7 +416,7 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenRemovingLastValueThenAnExceptionIsThrown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         Throwable throwable =
             assertThrows(NoSuchElementException.class, list::remove);
@@ -429,7 +429,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenRemovingLastValueThenTheSizeIsZero() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         int value = list.remove();
         // Then
@@ -441,7 +441,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenRemovingLastValueThenTheSizeIsOne() {
         // Given
-        LinkedList list = createPopulatedLinkedList(2);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(2);
         // When
         int value = list.remove();
         // Then
@@ -454,7 +454,7 @@ class LinkedListTest {
     @Test
     void givenANonEmptyListWhenClearingTheListThenTheSizeIsZero() {
         // Given
-        LinkedList list = createPopulatedLinkedList(1);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(1);
         // When
         list.clear();
         // Then
@@ -465,7 +465,7 @@ class LinkedListTest {
     @Test
     void givenAEmptyListWhenContainsValueThenFalseIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         boolean contains = list.contains(10);
         // Then
@@ -476,7 +476,7 @@ class LinkedListTest {
     @Test
     void givenAnInvalidValueWhenContainsValueThenFalseIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(4);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(4);
         int value = 4;
         // When
         boolean contains = list.contains(value);
@@ -488,7 +488,7 @@ class LinkedListTest {
     @Test
     void givenAnValidValueWhenContainsValueThenTrueIsReturned() {
         // Given
-        LinkedList list = createPopulatedLinkedList(4);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(4);
         int value = 3;
         // When
         boolean contains = list.contains(value);
@@ -500,25 +500,25 @@ class LinkedListTest {
     @Test
     void givenAnEmptyListWhenStringifyTheListThenNoElementsIsShown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(0);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(0);
         // When
         String toString = list.toString();
         // Then
-        assertEquals("LinkedList=[]", toString);
+        assertEquals("DoublyLinkedList=[]", toString);
     }
 
     @Test
     void givenANomEmptyListWhenStringifyTheListThenElementsAreShown() {
         // Given
-        LinkedList list = createPopulatedLinkedList(4);
+        DoublyLinkedList list = createPopulatedDoublyLinkedList(4);
         // When
         String toString = list.toString();
         // Then
-        assertEquals("LinkedList=[0, 1, 2, 3]", toString);
+        assertEquals("DoublyLinkedList=[0, 1, 2, 3]", toString);
     }
 
-    private LinkedList createPopulatedLinkedList(int capacity) {
-        LinkedList list = new LinkedList();
+    private DoublyLinkedList createPopulatedDoublyLinkedList(int capacity) {
+        DoublyLinkedList list = new DoublyLinkedList();
         for (int i = 0; i < capacity; i++) {
             list.add(i);
         }

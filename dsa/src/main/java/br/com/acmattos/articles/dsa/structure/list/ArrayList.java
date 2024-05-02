@@ -238,6 +238,7 @@ public class ArrayList implements List {
      * The list will be considered empty after this call returns.
      * Time Complexity: O(1).
      */
+    @Override
     public void clear() {
         size = 0;
     }
