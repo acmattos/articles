@@ -1,11 +1,13 @@
-package br.com.acmattos.chatgpt.chat.client
+package br.com.acmattos.chatgpt.chat.completions.client
 
-import br.com.acmattos.chatgpt.chat.api.ChatCompletionApi
-import br.com.acmattos.chatgpt.chat.api.message.UserMessage
-import br.com.acmattos.chatgpt.chat.api.request.ChatCompletionRequest
-import br.com.acmattos.chatgpt.chat.api.request.GptModel
-import br.com.acmattos.chatgpt.chat.api.request.GptModel.GPT_35_TURBO
-import br.com.acmattos.chatgpt.chat.api.response.ChatCompletionResponse
+import br.com.acmattos.chatgpt.chat.completions.api.ChatCompletionApi
+import br.com.acmattos.chatgpt.chat.completions.api.message.UserMessage
+import br.com.acmattos.chatgpt.chat.completions.api.request.ChatCompletionRequest
+import br.com.acmattos.chatgpt.chat.completions.api.request.GptModel
+import br.com.acmattos.chatgpt.chat.completions.api.request.GptModel.GPT_35_TURBO
+import br.com.acmattos.chatgpt.chat.completions.api.response.ChatCompletionResponse
+import java.util.concurrent.TimeUnit
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.Retrofit.Builder
 import retrofit2.converter.gson.GsonConverterFactory
@@ -18,16 +20,31 @@ import retrofit2.converter.gson.GsonConverterFactory
  *
  * @property OPENAI_API_KEY Authentication token set as an environment variable.
  */
-class ChatCompletionClient {
+class ChatCompletionClient(private val enableLocalServer: Boolean = false) {
     private val api: ChatCompletionApi
     private val accessToken: String = System.getenv("OPENAI_API_KEY")
+        ?: "LOCAL_LLM_SERVER"
 
     init {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(50, TimeUnit.SECONDS) // Timeout for connecting to server
+            .readTimeout(60, TimeUnit.SECONDS) // Timeout for reading data
+            .build()
         val retrofit: Retrofit = Builder()
-            .baseUrl(BASE_URL)
+            .client(client)
+            .baseUrl(getBaseUrl())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         api = retrofit.create(ChatCompletionApi::class.java)
+    }
+
+    /**
+     * Getts the base url based on local or remote server configuration.
+     */
+    private fun getBaseUrl() = if (enableLocalServer) {
+        BASE_LOCAL_URL
+    } else {
+        BASE_REMOTE_URL
     }
 
     /**
@@ -59,6 +76,7 @@ class ChatCompletionClient {
     }
 
     companion object {
-        private const val BASE_URL = "https://api.openai.com/"
+        private const val BASE_REMOTE_URL = "https://api.openai.com/"
+        private const val BASE_LOCAL_URL = "http://localhost:1234/"
     }
 }
