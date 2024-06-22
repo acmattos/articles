@@ -1,7 +1,7 @@
-package br.com.acmattos.chatgpt.chat.api
+package br.com.acmattos.chatgpt.chat.completions.api
 
-import br.com.acmattos.chatgpt.chat.api.request.ChatCompletionRequest
-import br.com.acmattos.chatgpt.chat.api.response.ChatCompletionResponse
+import br.com.acmattos.chatgpt.chat.completions.api.request.ChatCompletionRequest
+import br.com.acmattos.chatgpt.chat.completions.api.response.ChatCompletionResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header

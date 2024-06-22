@@ -1,6 +1,6 @@
-package br.com.acmattos.chatgpt.chat.api.response
+package br.com.acmattos.chatgpt.chat.completions.api.response
 
-import br.com.acmattos.chatgpt.chat.api.message.Message
+import br.com.acmattos.chatgpt.chat.completions.api.message.Message
 import com.google.gson.annotations.SerializedName
 
 /**

@@ -1,6 +1,6 @@
-package br.com.acmattos.chatgpt.chat.api.request
+package br.com.acmattos.chatgpt.chat.completions.api.request
 
-import br.com.acmattos.chatgpt.chat.api.message.Message
+import br.com.acmattos.chatgpt.chat.completions.api.message.Message
 
 /**
  * Available GPT models.

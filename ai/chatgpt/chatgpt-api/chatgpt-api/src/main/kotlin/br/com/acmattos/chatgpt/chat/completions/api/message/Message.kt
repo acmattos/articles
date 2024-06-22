@@ -1,8 +1,8 @@
-package br.com.acmattos.chatgpt.chat.api.message
+package br.com.acmattos.chatgpt.chat.completions.api.message
 
-import br.com.acmattos.chatgpt.chat.api.message.Role.ASSISTANT
-import br.com.acmattos.chatgpt.chat.api.message.Role.SYSTEM
-import br.com.acmattos.chatgpt.chat.api.message.Role.USER
+import br.com.acmattos.chatgpt.chat.completions.api.message.Role.ASSISTANT
+import br.com.acmattos.chatgpt.chat.completions.api.message.Role.SYSTEM
+import br.com.acmattos.chatgpt.chat.completions.api.message.Role.USER
 import com.google.gson.annotations.SerializedName
 
 /**
