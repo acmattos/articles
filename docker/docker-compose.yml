@@ -1,0 +1,328 @@
+# https://www.elastic.co/blog/getting-started-with-the-elastic-stack-and-docker-compose
+################################################################################
+#                            1 - VOLUMES DEFINITION                            
+################################################################################
+volumes:
+  certs_volume:
+    driver: local
+  es_volume_01:
+    driver: local
+  kibana_volume:
+    driver: local
+#  metricbeat_volume_01:
+#    driver: local
+#  filebeat_volume_01:
+#    driver: local
+  logstash_volume_01:
+    driver: local
+  logstash_certs_volume:
+    driver: local
+  couchdb_certs_volume:
+    driver: local
+  couchdb_volume_data:
+    driver: local
+  couchdb_volume_config:
+    driver: local
+  couchdb_volume_log:
+    driver: local
+  artemis-data:
+    driver: local
+
+################################################################################
+#                           2 - NETWORKS DEFINITION                           
+################################################################################
+networks:
+  default:
+    name: elastic_network
+    external: false
+
+################################################################################
+#                           3 - SERVICES DEFINITION                           
+################################################################################
+services:
+#------------------------------------
+# 3.1 - 'setup' Container Definition:
+#------------------------------------
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs_volume:/usr/share/elasticsearch/config/certs
+      - logstash_certs_volume:/usr/share/logstash/config/certs
+      - couchdb_certs_volume:/usr/share/couchdb/config/certs
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f config/certs/certs.zip ]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: es01\n"\
+          "    dns:\n"\
+          "      - es01\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          "  - name: kibana\n"\
+          "    dns:\n"\
+          "      - kibana\n"\
+          "      - localhost\n"\
+          "  - name: couchdb\n"\
+          "    dns:\n"\
+          "      - couchdb\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
+        echo "Copying certs to CouchDB volume"
+        cp -r config/certs/* /usr/share/couchdb/config/certs/
+        echo "Copying certs to Logstash volume"
+        cp -r config/certs/* /usr/share/logstash/config/certs
+        echo "Setting file permissions"
+        chown -R root:root config/certs /usr/share/couchdb/config/certs;
+        find config/certs /usr/share/couchdb/config/certs -type d -exec chmod 750 {} \;;
+        find config/certs /usr/share/couchdb/config/certs -type f -exec chmod 640 {} \;;
+        chown -R 1000:1000 config/certs /usr/share/logstash/config/certs;
+        find config/certs /usr/share/logstash/config/certs -type d -exec chmod 750 {} \;;
+        find config/certs /usr/share/logstash/config/certs -type f -exec chmod 644 {} \;;
+        echo "Waiting for CouchDB availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://couchdb:${COUCHDB_SPORT} | grep -q "\"couchdb\""; do sleep 10; done;echo "✔️  CouchDB is up!";
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;echo "✔️  Elasticsearch is up!";
+        echo "Setting kibana_system password";
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;echo "✔️  Kibana is up!";
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+ 
+#-----------------------------------
+# 3.2 - 'es01' Container Definition:
+#-----------------------------------
+  es01:
+    depends_on:
+      setup:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    labels:
+      co.elastic.logs/module: elasticsearch
+    volumes:
+      - certs_volume:/usr/share/elasticsearch/config/certs
+      - es_volume_01:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es01/es01.key
+      - xpack.security.http.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es01/es01.key
+      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+    mem_limit: ${ES_MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+ 
+#-------------------------------
+# 'kibana' Container Definition:
+#-------------------------------
+  kibana:
+    depends_on:
+      es01:
+        condition: service_healthy
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    labels:
+      co.elastic.logs/module: kibana
+    volumes:
+      - certs_volume:/usr/share/kibana/config/certs
+      - kibana_volume:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+      - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+    mem_limit: ${KB_MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+ 
+# #-------------------------------------
+# # 'metricbeat01' Container Definition:
+# #-------------------------------------
+#   metricbeat01:
+#     depends_on:
+#       es01:
+#         condition: service_healthy
+#       kibana:
+#         condition: service_healthy
+#     image: docker.elastic.co/beats/metricbeat:${STACK_VERSION}
+#     user: root
+#     command: --strict.perms=false # --strict.perms flag to disable strict permission checks
+#     volumes:
+#       - certs_volume:/usr/share/metricbeat/certs
+#       - metricbeat_volume_01:/usr/share/metricbeat/data
+#       - "./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro"
+#       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#       - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+#       - "/proc:/hostfs/proc:ro"
+#       - "/:/hostfs:ro"
+#     environment:
+#       - STACK_VERSION=${STACK_VERSION}
+#       - ELASTIC_USER=elastic
+#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+#       - ELASTIC_HOSTS=https://es01:9200
+#       - KIBANA_HOSTS=http://kibana:5601
+#       - LOGSTASH_HOSTS=http://logstash01:9600
+
+# #-----------------------------------
+# # 'filebeat01’ Container Definition:
+# #----------------------------------- 
+#   filebeat01:
+#     depends_on:
+#       es01:
+#         condition: service_healthy
+#     image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+#     user: root
+#     command: --strict.perms=false 
+#     volumes:
+#       - certs_volume:/usr/share/filebeat/certs
+#       - filebeat_volume_01:/usr/share/filebeat/data
+#       - "./filebeat_ingest_data/:/usr/share/filebeat/ingest_data/"
+#       - "./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+#       - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+#       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#     environment:
+#       - ELASTIC_USER=elastic
+#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+#       - ELASTIC_HOSTS=https://es01:9200
+#       - KIBANA_HOSTS=http://kibana:5601
+#       - LOGSTASH_HOSTS=http://logstash01:9600
+
+#-----------------------------------
+# ‘logstash01’ Container Definition:
+#----------------------------------- 
+  logstash01:
+    depends_on:
+      es01:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+      couchdb:
+        condition: service_healthy
+    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    labels:
+      co.elastic.logs/module: logstash
+    user: "1000:1000"
+    volumes:
+      - logstash_certs_volume:/usr/share/logstash/certs:ro
+      - logstash_volume_01:/usr/share/logstash/data
+      - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+    environment:
+      - xpack.monitoring.enabled=false
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://es01:9200
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+
+#--------------------------------
+# ‘couchdb’ Container Definition:
+#-------------------------------- 
+  couchdb:
+    depends_on:
+      setup:
+        condition: service_healthy
+    image: couchdb:${COUCHDB_VERSION}
+    restart: always
+    ports:
+      - ${COUCHDB_PORT}:5984
+      - ${COUCHDB_SPORT}:6984
+    volumes:
+      - couchdb_certs_volume:/opt/couchdb/certs
+      - couchdb_volume_data:/opt/couchdb/data
+      - couchdb_volume_config:/opt/couchdb/etc/local.d
+      - couchdb_volume_log:/opt/couchdb/var/log
+      - ./couchdb-ssl.ini:/opt/couchdb/etc/local.d/couchdb-ssl.ini:ro
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+      COUCHDB_COOKIE: couchdb_cluster_cookie
+      ERL_FLAGS: "-ssl_dist_opt server_certfile '/opt/couchdb/certs/couchdb/couchdb.crt' \
+                  -ssl_dist_opt server_keyfile '/opt/couchdb/certs/couchdb/couchdb.key' \
+                  -ssl_dist_opt server_cacertfile '/opt/couchdb/certs/ca/ca.crt'"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert /opt/couchdb/certs/ca/ca.crt https://localhost:6984/_up | grep -q '\"status\":\"ok\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+#--------------------------------
+# ‘artemis’ Container Definition:
+#--------------------------------
+  artemis:
+    image: apache/activemq-artemis:2.42.0
+    environment:
+      - ARTEMIS_USERNAME=${ARTEMIS_USERNAME}
+      - ARTEMIS_PASSWORD=${ARTEMIS_PASSWORD}
+      - ANONYMOUS_LOGIN=${ARTEMIS_ANONYMOUS_LOGIN}
+      - EXTRA_ARGS=${ARTEMIS_EXTRA_ARGS}
+    ports:
+      - "8161:8161"   # Web Console
+      - "61616:61616" # TCP Broker
+    volumes:
+#      - ./artemis/broker.xml:/var/lib/artemis-instance/etc-override/broker.xml
+      - artemis-data:/var/lib/artemis-instance
+
