@@ -1,0 +1,40 @@
+services:
+  whisper-service:
+    build: ./whisper-service
+    image: local/whisper-service:1.1.0
+    environment:
+      WHISPER_MODELS: "small,medium,large-v3,large-v3-turbo"
+      WHISPER_DEVICE: "auto"
+      WHISPER_COMPUTE_TYPE: "int8"
+      WHISPER_BEAM_SIZE: "5"
+      WHISPER_VAD_FILTER: "true"
+      WHISPER_ALIASES: |
+        {
+          "large-v3-turbo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
+        }
+    ports:
+    - "8080:8080"
+    volumes:
+      - models-cache:/root/.cache
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 300s
+
+  api-gateway:
+    build: ./api-gateway
+    image: local/transcription-gateway:1.1.0
+    environment:
+      MODEL_URL: "http://whisper-service:8080"
+      API_KEY: "change-me"
+      ALLOWED_MODELS: "small,medium,large-v3,large-v3-turbo"
+    ports:
+      - "8081:8081"
+    depends_on:
+      whisper-service:
+        condition: service_healthy
+
+volumes:
+  models-cache:
