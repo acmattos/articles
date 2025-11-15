@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 ENV MODEL_URL=http://whisper-service:8080 \
-    API_KEY= \
+    API_KEY=change-me \
    ALLOWED_MODELS=small,medium,large-v3,large-v3-turbo
 
 EXPOSE 8081
