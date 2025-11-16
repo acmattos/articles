@@ -91,7 +91,7 @@ another for the Whisper Service): both fully containerized. At the root, a
 Here’s the full layout:
 
 ```ini
-project-root/
+whisper_transcriptor/
 ├── api-gateway/
 │   ├── app/
 │   │   ├── main.py
