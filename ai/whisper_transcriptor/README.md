@@ -24,9 +24,9 @@ just a few minutes: perfect for teams integrating
 - How to containerize and orchestrate everything with Docker Compose.  
 - How to tune parameters for speed, accuracy, and GPU usage.
 
-!!!json
+```json
 {"section": "introduction", "version": "1.1.0"}
-!!!
+```
 
 ---
 
@@ -75,10 +75,10 @@ Both services expose `/health` endpoints for readiness checks:
 These endpoints make it easy to integrate with monitoring tools like Prometheus,
 Grafana, or Docker healthchecks.
 
-!!!ini
+```ini
 ARCH_COMPONENTS=api-gateway,whisper-service
 NETWORK=docker-compose
-!!!
+```
 
 ---
 
@@ -90,7 +90,7 @@ another for the Whisper Service): both fully containerized. At the root, a
 
 Here’s the full layout:
 
-!!!ini
+```ini
 project-root/
 ├── api-gateway/
 │   ├── app/
@@ -105,7 +105,7 @@ project-root/
 │   ├── Dockerfile
 │   └── requirements.txt
 └── docker-compose.yml
-!!!
+```
 
 Each component runs as an independent FastAPI app, communicating over the 
 internal Docker network.
@@ -119,9 +119,9 @@ internal Docker network.
 - **docker-compose.yml:** orchestration of services, volumes, ports, and 
   healthchecks.
 
-!!!json
+```json
 {"section": "project-structure", "containers": ["api-gateway", "whisper-service"]}
-!!!
+```
 
 ---
 
@@ -134,7 +134,7 @@ reimplementation of Whisper, providing better speed and memory efficiency.
 
 ### 1) Service Initialization
 
-!!!ini
+```ini
 # app.main (excerpt)
 @app.on_event("startup")
 def load_models() -> None:
@@ -146,7 +146,7 @@ def load_models() -> None:
       device=device,
       compute_type=settings.compute_type
     )
-!!!
+```
 
 `_resolve_device()` automatically picks the best available device:
 - If CUDA is available → uses GPU (`cuda`).  
@@ -156,7 +156,7 @@ def load_models() -> None:
 
 Tune service behavior with environment variables (defaults shown):
 
-!!!json
+```json
 {
   "WHISPER_MODELS": "small,medium,large-v3,large-v3-turbo",
   "WHISPER_DEVICE": "auto",
@@ -167,11 +167,11 @@ Tune service behavior with environment variables (defaults shown):
     "large-v3-turbo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo"
   }
 }
-!!!
+```
 
 ### 3) Transcription Workflow
 
-!!!ini
+```ini
 # app.main (excerpt)
 segments, info = models[model_key].transcribe(
   tmp_path,
@@ -181,7 +181,7 @@ segments, info = models[model_key].transcribe(
 )
 text = " ".join(seg.text.strip() for seg in segments).strip()
 response = {"text": text, "language": info.language}
-!!!
+```
 
 This design keeps the service **stateless** and horizontally scalable.
 
@@ -198,24 +198,24 @@ Generic route for flexibility:
 
 ### 5) Health Endpoint
 
-!!!ini
+```ini
 # app.main (excerpt)
 @app.get("/health")
 def health():
   return {"status": "ok", "loaded_models": list(models.keys())}
-!!!
+```
 
 ### 6) Resource Management
 
 Temporary files are deleted after processing. Model artifacts are cached on a 
 shared Docker volume to avoid repeated downloads across restarts.
 
-!!!ini
+```ini
 SERVICE_PORT=8080
 CACHE_VOLUME=models-cache
 LIBRARY=faster-whisper
 PRELOADED=small,medium,large-v3,large-v3-turbo
-!!!
+```
 
 ---
 
@@ -236,12 +236,12 @@ Handles:
 
 ### 2) Core Structure
 
-!!!ini
+```ini
 api-gateway/
 └── app/
     ├── main.py
     └── settings.py
-!!!
+```
 
 - **main.py:** FastAPI routes (`/transcribe/*`, `/health`) + forwarding logic 
   using `httpx`.  
@@ -253,7 +253,7 @@ Every transcription request must include a Bearer token in the `Authorization`
 header.  
 The gateway compares it to the configured `API_KEY`.
 
-!!!ini
+```ini
 # app.main (excerpt)
 async def check_auth(authorization: str | None = Header(default=None)):
   if settings.api_key:
@@ -262,11 +262,11 @@ async def check_auth(authorization: str | None = Header(default=None)):
     token = authorization.removeprefix("Bearer ")
     if token != settings.api_key:
       raise HTTPException(status_code=403, detail="Invalid token")
-!!!
+```
 
 ### 4) Forwarding Logic
 
-!!!ini
+```ini
 # app.main (excerpt)
 async def _forward(file: UploadFile, path: str):
   files = {
@@ -277,7 +277,7 @@ async def _forward(file: UploadFile, path: str):
   if r.status_code != 200:
     raise HTTPException(status_code=r.status_code, detail=r.text)
   return JSONResponse(r.json())
-!!!
+```
 
 ### 5) Routes Overview
 
@@ -290,19 +290,19 @@ async def _forward(file: UploadFile, path: str):
 
 ### 6) Settings and Environment Variables
 
-!!!json
+```json
 {
   "MODEL_URL": "http://whisper-service:8080",
   "API_KEY": "change-me",
   "ALLOWED_MODELS": "small,medium,large-v3,large-v3-turbo"
 }
-!!!
+```
 
-!!!ini
+```ini
 API_GATEWAY_PORT=8081
 DEPENDENCY=httpx
 FRAMEWORK=fastapi
-!!!
+```
 
 ---
 
@@ -315,7 +315,7 @@ official docs.
 
 ### 1) Compose Overview
 
-!!!ini
+```ini
 services:
   whisper-service:
     build: ./whisper-service
@@ -352,13 +352,13 @@ services:
 
 volumes:
   models-cache:
-!!!
+```
 
 ### 2) Running the Services
 
-!!!ini
+```ini
 docker compose up --build
-!!!
+```
 
 Once both containers are healthy:
 - **Gateway:** http://localhost:8081  
@@ -366,16 +366,16 @@ Once both containers are healthy:
 
 ### 3) Health Verification
 
-!!!ini
+```ini
 curl http://localhost:8081/health
 curl http://localhost:8080/health
-!!!
+```
 
 Expected response:
 
-!!!json
+```json
 {"gateway": "ok", "model": {"status": "ok", "loaded_models": ["small","medium","large-v3","large-v3-turbo"]}}
-!!!
+```
 
 ### 4) Persistent Model Cache
 
@@ -384,7 +384,7 @@ startups are faster: ideal for production deployments and CI/CD pipelines.
 
 ### 5) Common Deployment Notes
 
-!!!ini
+```ini
 # Rebuild from scratch
 docker compose build --no-cache
 # Detach from console
@@ -393,7 +393,7 @@ docker compose up -d
 docker compose logs -f
 EXPOSED_PORTS=8080,8081
 VOLUME=models-cache
-!!!
+```
 
 ---
 
@@ -404,30 +404,30 @@ With both containers running, you can test the transcription endpoints via
 
 ### 1) Testing with cURL
 
-!!!ini
+```ini
 curl -X POST "http://localhost:8081/transcribe/small" \
   -H "Authorization: Bearer change-me" \
   -F "file=@sample.mp3"
-!!!
+```
 
 Expected output:
 
-!!!json
+```json
 {"text": "Hello and welcome to our demo on building a transcription API using 
 Whisper and FastAPI.","language":"en"}
-!!!
+```
 
 Another model:
 
-!!!ini
+```ini
 curl -X POST "http://localhost:8081/transcribe/large-v3-turbo" \
   -H "Authorization: Bearer change-me" \
   -F "file=@meeting_audio.wav"
-!!!
+```
 
 ### 2) Testing with Python
 
-!!!ini
+```ini
 import requests
 
 API_URL = "http://localhost:8081/transcribe/small"
@@ -440,13 +440,13 @@ with open("meeting.mp3", "rb") as f:
 
 print(response.status_code)
 print(response.json())
-!!!
+```
 
 Sample response:
 
-!!!json
+```json
 {"text": "Good morning everyone, let's start our meeting.","language":"en"}
-!!!
+```
 
 ### 3) Handling Errors
 
@@ -454,9 +454,9 @@ Check for: missing/invalid token (`401/403`), unsupported media type (`400`),
 model not allowed (`404`), or timeouts (`5xx`).  
 All responses include clear JSON-formatted error messages.
 
-!!!json
+```json
 {"detail": "Invalid token"}
-!!!
+```
 
 ---
 
@@ -475,39 +475,39 @@ pre-processing required**.
 
 ### 2) Converting Unsupported Formats
 
-!!!ini
+```ini
 ffmpeg -i input.mov -ar 16000 -ac 1 -c:a pcm_s16le output.wav
-!!!
+```
 
 ### 3) Working with Large Files
 
 Prefer `large-v3` or `large-v3-turbo` for higher accuracy; ensure enough 
 memory/GPU; optionally limit upload size in Uvicorn:
 
-!!!ini
+```ini
 CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8081","--limit-max-request-size","200"]
-!!!
+```
 
 ### 4) Language Detection and Multilingual Transcription
 
-!!!ini
+```ini
 WHISPER_LANGUAGE=pt
-!!!
+```
 
 ### 5) Example: Transcribing a Video File
 
-!!!ini
+```ini
 curl -X POST "http://localhost:8081/transcribe/large-v3-turbo" \
   -H "Authorization: Bearer change-me" \
   -F "file=@webinar.mp4"
-!!!
+```
 
 Expected response:
 
-!!!json
+```json
 {"text":"Today we're exploring how to build transcription systems using Whisper 
 and Docker.","language":"en"}
-!!!
+```
 
 ### 6) Tip: Speed vs Accuracy
 
@@ -518,10 +518,10 @@ and Docker.","language":"en"}
 | large-v3        |  🐢   |   🟢🟢   | Long or noisy recordings           |
 | large-v3-turbo  |  ⚡⚡   |   🟢     | Near real-time apps (GPU)          |
 
-!!!ini
+```ini
 MODEL_CHOICE=large-v3-turbo
 USE_CASE=near-real-time-transcription
-!!!
+```
 
 ---
 
@@ -532,41 +532,41 @@ to GPU-backed servers.
 
 ### 1) Choosing the Right Model
 
-!!!ini
+```ini
 # Example choosing a model
 curl -X POST "http://localhost:8081/transcribe/large-v3-turbo" \
   -H "Authorization: Bearer change-me" \
   -F "file=@podcast.mp3"
-!!!
+```
 
 ### 2) Compute Type and Device
 
-!!!ini
+```ini
 # GPU-optimized example
 WHISPER_DEVICE=cuda
 WHISPER_COMPUTE_TYPE=float16
-!!!
+```
 
 ### 3) Beam Search and VAD
 
-!!!ini
+```ini
 WHISPER_BEAM_SIZE=8
 WHISPER_VAD_FILTER=true
-!!!
+```
 
 ### 4) Language Parameter
 
-!!!ini
+```ini
 WHISPER_LANGUAGE=en
-!!!
+```
 
 ### 5) Measuring Performance
 
-!!!ini
+```ini
 time curl -X POST "http://localhost:8081/transcribe/small" \
   -H "Authorization: Bearer change-me" \
   -F "file=@audio.wav"
-!!!
+```
 
 ---
 
@@ -577,44 +577,44 @@ time curl -X POST "http://localhost:8081/transcribe/small" \
 Use the Gateway as the only public entry point. Protect it with authentication, 
 rate limiting, and HTTPS.
 
-!!!ini
+```ini
 API_KEY=my-secret-token
-!!!
+```
 
 Best practices: rotate keys, store secrets via env/secret manager, and use a 
 reverse proxy (e.g., Nginx/Traefik).
 
 ### 2) Resource Limits
 
-!!!ini
+```ini
 # Compose-style hint (conceptual)
 deploy:
   resources:
     limits:
       cpus: "2.0"
       memory: "8G"
-!!!
+```
 
 ### 3) Timeout Management
 
-!!!ini
+```ini
 # In the API Gateway
 httpx.AsyncClient(timeout=360)
-!!!
+```
 
 ### 4) Monitoring and Healthchecks
 
-!!!ini
+```ini
 curl http://localhost:8081/health
 curl http://localhost:8080/health
-!!!
+```
 
 ### 5) Logging and Observability
 
-!!!ini
+```ini
 LOG_LEVEL=info
 ENABLE_TRACING=true
-!!!
+```
 
 ### 6) Backup and Recovery
 
@@ -630,35 +630,35 @@ restarts; snapshot for faster redeployments.
 Models are downloaded/loaded into memory on the first run; subsequent runs are 
 fast thanks to caching.
 
-!!!ini
+```ini
 docker compose up
 # first startup downloads models to /root/.cache
-!!!
+```
 
 ### 2) CUDA or GPU Not Detected
 
-!!!ini
+```ini
 sudo apt install nvidia-container-toolkit
 docker run --gpus all local/whisper-service:1.1.0
-!!!
+```
 
 ### 3) Out of Memory (OOM)
 
-!!!ini
+```ini
 WHISPER_COMPUTE_TYPE=int8
-!!!
+```
 
 ### 4) Invalid Token or 403 Errors
 
-!!!ini
+```ini
 -H "Authorization: Bearer change-me"
-!!!
+```
 
 ### 5) 415 Unsupported Media Type
 
-!!!ini
+```ini
 ffmpeg -i input.mov -ar 16000 -ac 1 -c:a pcm_s16le output.wav
-!!!
+```
 
 ### 6) Empty Transcriptions
 
@@ -672,14 +672,14 @@ Increase Gateway timeout or use a smaller model.
 
 Increase `start_period` or retries.
 
-!!!ini
+```ini
 healthcheck:
   test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
   interval: 30s
   timeout: 10s
   retries: 30
   start_period: 600s
-!!!
+```
 
 ---
 
